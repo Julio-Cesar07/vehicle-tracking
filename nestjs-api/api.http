@@ -1,0 +1,35 @@
+@originId = {{ place_origin.response.body.candidates[0].place_id }}
+@destinationId = {{ place_destination.response.body.candidates[0].place_id }}
+
+### 
+# @name place_origin
+get http://localhost:3000/places?text=av governador valadares, betim, 1000
+Content-Type: application/json
+
+### 
+# @name place_destination
+get http://localhost:3000/places?text=av amazonas, belo horizonte, 1000
+Content-Type: application/json
+
+### 
+# @name destination
+get http://localhost:3000/directions?originId={{ originId }}&destinationId={{ destinationId }}
+
+### 
+# @name create_route
+post http://localhost:3000/routes
+Content-Type: application/json
+
+{
+    "name": "rota 1",
+    "source_id": "{{originId}}",
+    "destination_id": "{{destinationId}}"
+}
+
+### 
+# @name get_routes
+get http://localhost:3000/routes
+
+### 
+# @name get_route
+get http://localhost:3000/routes/6757c448861dd58461e3e2f5

@@ -3,21 +3,21 @@
 
 ### 
 # @name place_origin
-get http://localhost:3000/places?text=av governador valadares, betim, 1000
+get http://localhost:3333/places?text=av governador valadares, betim, 1000
 Content-Type: application/json
 
 ### 
 # @name place_destination
-get http://localhost:3000/places?text=av amazonas, belo horizonte, 1000
+get http://localhost:3333/places?text=av amazonas, belo horizonte, 1000
 Content-Type: application/json
 
 ### 
-# @name destination
-get http://localhost:3000/directions?originId={{ originId }}&destinationId={{ destinationId }}
+# @name directions
+get http://localhost:3333/directions?originId={{ originId }}&destinationId={{ destinationId }}
 
 ### 
 # @name create_route
-post http://localhost:3000/routes
+post http://localhost:3333/routes
 Content-Type: application/json
 
 {
@@ -28,8 +28,8 @@ Content-Type: application/json
 
 ### 
 # @name get_routes
-get http://localhost:3000/routes
+get http://localhost:3333/routes
 
 ### 
 # @name get_route
-get http://localhost:3000/routes/6757c448861dd58461e3e2f5
+get http://localhost:3333/routes/6757c448861dd58461e3e2f5

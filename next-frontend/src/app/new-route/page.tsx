@@ -1,16 +1,16 @@
 import { api } from "@/utils/fetch"
 import { NewRouteForm } from "./NewRouteForm"
-import { PlaceData } from "@/interfaces/place-data";
 import { MapNewRoute } from "./MapNewRoute";
-import { DirectionsData, SearchDirectionsData } from "@/interfaces/directions-data";
+import { DirectionsData, SearchDirectionsData } from "@/models/directions-data";
+import { PlaceModel } from "@/models/place-model";
 
 export async function searchDirections(source: string, destination: string): Promise<SearchDirectionsData> {
     try {
         const [sourceResponse, destinationResponse] = await Promise.all([
-            api<PlaceData>(`/places?text=${source}`,
+            api<PlaceModel>(`/places?text=${source}`,
                 // "GET", undefined, true
             ),
-            api<PlaceData>(`/places?text=${destination}`,
+            api<PlaceModel>(`/places?text=${destination}`,
                 // "GET", undefined, true
             )
         ])
@@ -45,7 +45,7 @@ export default async function NewRoutePage({ searchParams }: {
     }
 
     return (
-        <div className="flex flex-1 w-full h-full">
+        <div className="flex flex-1 w-full h-screen">
             <div className="w-1/3 p-4 h-full">
                 <h4 className="text-3xl text-contrast mb-2">Nova rota</h4>
                 <form className="flex flex-col space-y-4" method="get">

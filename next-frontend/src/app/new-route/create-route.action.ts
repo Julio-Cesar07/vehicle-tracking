@@ -1,8 +1,9 @@
 "use server";
 
-import { ActionResponse } from "@/interfaces/action-response";
-import { DirectionsData } from "@/interfaces/directions-data";
+import { ActionResponse } from "@/models/action-response";
+import { DirectionsData } from "@/models/directions-data";
 import { api } from "@/utils/fetch";
+import { revalidateTag } from "next/cache";
 
 export async function createRouteAction(state: ActionResponse | null, formData: FormData): Promise<ActionResponse> {
     try {
@@ -19,6 +20,8 @@ export async function createRouteAction(state: ActionResponse | null, formData: 
             source_id: directionData.request.origin.place_id.replace("place_id:", ""),
             destination_id: directionData.request.destination.place_id.replace("place_id:", "")
         })
+
+        revalidateTag("routes")
 
         return {
             success: true

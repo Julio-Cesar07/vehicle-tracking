@@ -2,7 +2,8 @@ export async function api<T = unknown>(
     url: string,
     method: "GET" | "POST" | "DELETE" | "PUT" | "PATCH" = "GET",
     body?: Record<string, unknown>,
-    cached: boolean = false
+    cached: boolean = false,
+    cacheTag?: string[]
 ): Promise<T> {
     const response = await fetch(`http://localhost:3333${url}`, {
         method: method,
@@ -11,6 +12,7 @@ export async function api<T = unknown>(
         cache: cached ? "force-cache" : undefined,
         next: cached ? {
             revalidate: 1 * 60 * 60 * 24, // 1 day
+            tags: cacheTag
         } : undefined
     })
 

@@ -2,21 +2,18 @@
 
 import { useEffect, useRef } from "react";
 import { useMap } from "../../hooks/useMap";
-import { DirectionsData } from "@/interfaces/directions-data";
+import { DirectionsData } from "@/models/directions-data";
 
 export type MapNewRouteProps = {
   directionsData: DirectionsData;
 };
 
-export function MapNewRoute(props: MapNewRouteProps) {
-  const { directionsData } = props;
+export function MapNewRoute({ directionsData }: MapNewRouteProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const map = useMap(mapContainerRef);
 
   useEffect(() => {
-    if (!map || !directionsData) {
-      return;
-    }
+    if (!map || !directionsData) return
 
     map.removeAllRoutes();
     map.addRouteWithIcons({

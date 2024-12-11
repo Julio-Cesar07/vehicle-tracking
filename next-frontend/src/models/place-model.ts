@@ -1,4 +1,4 @@
-export interface PlaceData {
+export interface PlaceModel {
     candidates: {
         place_id: string
     }[]

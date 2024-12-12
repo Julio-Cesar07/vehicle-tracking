@@ -5,7 +5,8 @@ export async function api<T = unknown>(
     cached: boolean = false,
     cacheTag?: string[]
 ): Promise<T> {
-    const response = await fetch(`http://localhost:3333${url}`, {
+    const isUrldomain = url.startsWith("http") ? true : false 
+    const response = await fetch(isUrldomain ? url :`http://localhost:3333${url}`, {
         method: method,
         headers: body ? { 'Content-Type': 'application/json'} : undefined,
         body: body ? JSON.stringify(body) : undefined,

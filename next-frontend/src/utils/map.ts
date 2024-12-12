@@ -1,9 +1,9 @@
 import { sample, shuffle } from "lodash";
-import type { DirectionsResponseData } from "@googlemaps/google-maps-services-js";
+import { DirectionsData } from "@/models/directions-data";
 
 export class Map {
   public map: google.maps.Map;
-  private routes: { [routeId: string]: MapRoute } = {};
+  private routes: { [routeId: string]: MapRoute | null } = {};
 
   constructor(element: HTMLElement, options: google.maps.MapOptions) {
     this.map = new google.maps.Map(element, {
@@ -96,13 +96,13 @@ export class Map {
     startMarkerOptions: google.maps.marker.AdvancedMarkerElementOptions;
     endMarkerOptions: google.maps.marker.AdvancedMarkerElementOptions;
     carMarkerOptions: google.maps.marker.AdvancedMarkerElementOptions;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    directionsResponseData?: DirectionsResponseData & { request: any };
+     
+    directionsResponseData?: DirectionsData;
   }) {
     if (routeOptions.routeId in this.routes) {
       throw new MapRouteExistsError();
     }
-
+    this.routes[routeOptions.routeId] = null;
     const { startMarkerOptions, endMarkerOptions, carMarkerOptions } =
       routeOptions;
 
@@ -111,7 +111,7 @@ export class Map {
       endMarkerOptions: { ...endMarkerOptions, map: this.map },
       carMarkerOptions: { ...carMarkerOptions, map: this.map },
     });
-    this.routes[routeOptions.routeId] = route;
+    this.routes[routeOptions.routeId] = route
 
     await route.calculateRoute(routeOptions.directionsResponseData);
 
@@ -132,8 +132,8 @@ export class Map {
       google.maps.marker.AdvancedMarkerElementOptions,
       "icon"
     >;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    directionsResponseData?: DirectionsResponseData & { request: any };
+     
+    directionsResponseData?: DirectionsData;
   }) {
     const color = sample(shuffle(colors)) as string;
     return this.addRoute({
@@ -159,6 +159,9 @@ export class Map {
 
     Object.keys(this.routes).forEach((id: string) => {
       const route = this.routes[id];
+
+      if(!route) throw new MapRouteExistsError();
+
       bounds.extend(route.startMarker.position!);
       bounds.extend(route.endMarker.position!);
     });
@@ -167,6 +170,8 @@ export class Map {
   }
 
   moveCar(routeId: string, position: google.maps.LatLngLiteral) {
+    if(!this.routes[routeId]) throw new MapRouteExistsError();
+
     this.routes[routeId].carMarker.position = {
       lat: position.lat,
       lng: position.lng,
@@ -178,6 +183,9 @@ export class Map {
       return;
     }
     const route = this.routes[id];
+
+    if(!route) throw new MapRouteExistsError();
+
     route.delete();
     delete this.routes[id];
   }
@@ -233,8 +241,8 @@ export class MapRoute {
   }
 
   async calculateRoute(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    directionsResponseData?: DirectionsResponseData & { request: any }
+     
+    directionsResponseData?: DirectionsData
   ) {
     if (directionsResponseData) {
       const directionsResult = convertDirectionsResponseToDirectionsResult(
@@ -339,8 +347,7 @@ const colors = [
 ];
 
 function convertDirectionsResponseToDirectionsResult(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  directionsResponse: DirectionsResponseData & { request: any }
+  directionsResponse: DirectionsData
 ): google.maps.DirectionsResult {
   const copy = { ...directionsResponse };
 
@@ -349,7 +356,10 @@ function convertDirectionsResponseToDirectionsResult(
       copy.available_travel_modes as google.maps.TravelMode[],
     geocoded_waypoints: copy.geocoded_waypoints,
     status: copy.status,
-    request: copy.request,
+    request: {
+      ...copy.request,
+      travelMode: google.maps.TravelMode.DRIVING
+    },
     //@ts-expect-error - types are incorrect
     routes: copy.routes.map((route) => {
       const bounds = new google.maps.LatLngBounds(

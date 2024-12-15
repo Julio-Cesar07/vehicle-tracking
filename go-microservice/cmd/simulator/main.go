@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"os"
 	"time"
 
 	"github.com/Julio-Cesar07/vehicle-tracking/simulator/internal/events"
@@ -16,12 +17,17 @@ import (
 )
 
 func main() {
-	mongoStr := "mongodb://admin:admin@localhost:27017/routes?authSource=admin"
-	mongoConn, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongoStr))
+	mongoURI := getEnv("MONGO_URI", "mongodb://admin:admin@localhost:27017/routes?authSource=admin")
+	kafkaBroker := getEnv("KAFKA_BROKER", "kafka:9092")
+	kafkaRouteTopic := getEnv("KAFKA_ROUTE_TOPIC", "route")
+	kafkaFreightTopic := getEnv("KAFKA_FREIGHT_TOPIC", "freight")
+	kafkaSimulationTopic := getEnv("KAFKA_SIMULATION_TOPIC", "simulation")
+	kafkaGroupID := getEnv("KAFKA_GROUP_ID", "route-group")
+
+	mongoConn, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		panic(err)
 	}
-
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -33,24 +39,23 @@ func main() {
 	routeRepository := route.NewRouteRepository(mongoConn, freightService)
 
 	chDriverMoved := make(chan *events.DriverMovedEvent)
-	kafkaBroker := "localhost:9092"
 
 	freightWriter := &kafka.Writer{
 		Addr:     kafka.TCP(kafkaBroker),
-		Topic:    "freight",
+		Topic:    kafkaFreightTopic,
 		Balancer: &kafka.LeastBytes{},
 	}
 
 	simulatorWriter := &kafka.Writer{
 		Addr:     kafka.TCP(kafkaBroker),
-		Topic:    "simulator",
+		Topic:    kafkaSimulationTopic,
 		Balancer: &kafka.LeastBytes{},
 	}
 
 	routeReader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: []string{kafkaBroker},
-		Topic:   "route",
-		GroupID: "simulator",
+		Topic:   kafkaRouteTopic,
+		GroupID: kafkaGroupID,
 	})
 
 	hub := hub.NewEventHub(routeRepository, mongoConn, chDriverMoved, freightWriter, simulatorWriter)
@@ -70,4 +75,11 @@ func main() {
 			}
 		}(m.Value)
 	}
+}
+
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
 }

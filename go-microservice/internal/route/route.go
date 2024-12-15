@@ -8,7 +8,7 @@ type Directions struct {
 type Route struct {
 	ID           string       `bson:"_id" json:"id"`
 	Distance     int          `bson:"distance" json:"distance"`
-	Directions   []Directions `bson:"direction" json:"directions"`
+	Directions   []Directions `bson:"directions" json:"directions"`
 	FreightPrice float64      `bson:"freight_price" json:"freight_price"`
 }
 

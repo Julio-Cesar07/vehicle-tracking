@@ -1,0 +1,9 @@
+services:
+  mongo-replica:
+    build: ./.docker/mongodb
+    container_name: mongo-replica
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=vehicle-tracking
+      - MONGO_INITDB_ROOT_PASSWORD=vehicle-tracking
+    ports:
+      - 27017:27017

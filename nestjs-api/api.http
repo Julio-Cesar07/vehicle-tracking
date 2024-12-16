@@ -3,7 +3,7 @@
 
 ### 
 # @name place_origin
-get http://localhost:3333/places?text=av governador valadares, betim, 1000
+get http://localhost:3333/places?text=av matão, araraquara, 497
 Content-Type: application/json
 
 ### 
@@ -21,10 +21,14 @@ post http://localhost:3333/routes
 Content-Type: application/json
 
 {
-    "name": "rota 1",
+    "name": "rota 3",
     "source_id": "{{originId}}",
     "destination_id": "{{destinationId}}"
 }
+
+### 
+# @name route_start
+post http://localhost:3333/routes/675fb6f663ba1ddf0921099a/start
 
 ### 
 # @name get_routes

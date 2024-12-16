@@ -20,7 +20,7 @@ export default function AdminPage() {
         socket.on('server:new-points:list', async ({ lat, lng, route_id }: ServerNewPointsList) => {
             try {
                 if (!map.hasRoute(route_id)) {
-                    const route = await api<RouteModel>(`http://localhost:3000/api/routes/${route_id}`)
+                    const route = await api<RouteModel>(`${process.env.NEXT_PUBLIC_API_URL}/routes/${route_id}`)
                     const { start_location, end_location } = route.directions.routes[0].legs[0]
                     map.addRouteWithIcons({
                         routeId: route_id,

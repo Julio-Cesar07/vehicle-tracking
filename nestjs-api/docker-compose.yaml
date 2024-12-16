@@ -1,16 +1,11 @@
-services:
-  
-  # app:
-  #   build: .
-  #   ports:
-  #     - 3000:3000
-  #   volumes:
-  #     - .:/home/node/app
+include:
+  - ../mongodb/docker-compose.yaml
+  - ../kafka/docker-compose.yaml
 
-  mongo-replica:
-    build: ./.docker/mongodb
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=root
+services:
+  nest:
+    build: .
     ports:
-      - 27017:27017
+      - 3333:3333
+    volumes:
+      - .:/home/node/app

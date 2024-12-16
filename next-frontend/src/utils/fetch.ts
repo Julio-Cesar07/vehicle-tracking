@@ -1,4 +1,4 @@
-export async function api<T = unknown>(
+export async function api<T = object>(
     url: string,
     method: "GET" | "POST" | "DELETE" | "PUT" | "PATCH" = "GET",
     body?: Record<string, unknown>,
@@ -6,7 +6,8 @@ export async function api<T = unknown>(
     cacheTag?: string[]
 ): Promise<T> {
     const isUrldomain = url.startsWith("http") ? true : false 
-    const response = await fetch(isUrldomain ? url :`http://localhost:3333${url}`, {
+    const newUrl = isUrldomain ? url :`${process.env.NEST_API_URL}${url}`
+    const response = await fetch(newUrl, {
         method: method,
         headers: body ? { 'Content-Type': 'application/json'} : undefined,
         body: body ? JSON.stringify(body) : undefined,
@@ -22,5 +23,6 @@ export async function api<T = unknown>(
         throw new Error(`Erro ${response.status}\n${errBody}`)
     }
 
-    return response.json() as T
+    const responseData = await response.json().catch(() => ({}));
+    return responseData;
 }
